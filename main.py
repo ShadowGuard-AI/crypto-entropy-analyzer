@@ -1,9 +1,6 @@
 import argparse
 import logging
-import os
 import math
-from cryptography.exceptions import InvalidTag
-from cryptography.hazmat.primitives import hashes
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -24,6 +21,10 @@ def calculate_entropy(data):
     if not data:
         return 0.0  # Avoid log(0) error for empty data
 
+    # This is a per-byte frequency estimate, capped at 8 bits by
+    # construction. A short input cannot reach that cap: n distinct bytes
+    # give at most log2(n), so a low score on a few bytes says more about
+    # the sample size than about the source the bytes came from.
     entropy = 0
     data_length = len(data)
     probability_map = {}
@@ -137,7 +138,10 @@ def main():
 
     # Configure logging to file if specified
     if args.log:
-        logging.basicConfig(filename=args.log, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        # basicConfig only takes effect on the first call, and the module
+        # level call above already configured console logging, so without
+        # force=True the --log file was silently never created.
+        logging.basicConfig(filename=args.log, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', force=True)
 
     try:
         if args.file:
