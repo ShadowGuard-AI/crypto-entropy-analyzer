@@ -1,3 +1,5 @@
+![Banner](banner.png)
+
 # crypto-entropy-analyzer
 Analyzes the entropy of a given data source to assess its suitability for use as a seed for cryptographic operations. - Focused on Basic cryptographic operations
 
