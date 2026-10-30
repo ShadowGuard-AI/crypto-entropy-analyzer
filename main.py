@@ -144,9 +144,12 @@ def main():
         logging.basicConfig(filename=args.log, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', force=True)
 
     try:
-        if args.file:
+        # is-not-None, not truthiness: -d "" is a real request to score the
+        # empty input (entropy 0.0), and the truthiness check used to fall
+        # through both branches and exit 0 having analyzed nothing.
+        if args.file is not None:
             analyze_data_source(args.file, is_file=True)
-        elif args.data:
+        elif args.data is not None:
             analyze_data_source(args.data, is_file=False)
 
     except FileNotFoundError as e:
