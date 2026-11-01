@@ -58,6 +58,9 @@ def read_file_data(file_path):
     """
     try:
         with open(file_path, 'rb') as f:
+            # I read the whole file in one go. That keeps the counting
+            # simple, and it means a file bigger than the free memory
+            # fails here instead of being scored in pieces.
             data = f.read()
         return data
     except FileNotFoundError:
@@ -91,6 +94,9 @@ def analyze_data_source(data_source, is_file=False):
             data = read_file_data(data_source)
         else:
             if isinstance(data_source, str):
+                # I score the encoded bytes, not the characters. A string of
+                # accented letters scores on its two byte UTF-8 forms, which
+                # is a different number than the text alone would suggest.
                 data = data_source.encode('utf-8') #encoding string input
             elif isinstance(data_source, bytes):
                 data = data_source
@@ -148,6 +154,9 @@ def main():
         # empty input (entropy 0.0), and the truthiness check used to fall
         # through both branches and exit 0 having analyzed nothing.
         if args.file is not None:
+            # I throw the returned number away here. The only place the
+            # entropy lands is the log line inside analyze_data_source,
+            # so a caller who only watches stdout sees no result at all.
             analyze_data_source(args.file, is_file=True)
         elif args.data is not None:
             analyze_data_source(args.data, is_file=False)
